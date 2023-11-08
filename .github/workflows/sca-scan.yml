@@ -1,0 +1,42 @@
+name: Secrets Scan
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  secrets:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: add custom patterns in talismanrc file
+      run: echo "CmN1c3RvbV9wYXR0ZXJuczoK-LSBibHQoW2EtejAtOV0rKQotI-GNzKFthLXowLTldKykKLSAuKi5jc-25vbnByb2QuY29tCgo-=" | tr -d - | base64 -d | tee -a .talismanrc
+
+    - name: Install jq 
+      run: sudo apt-get install -y jq expect 
+
+    - name: Install Talisman
+      run: |
+        curl --silent https://thoughtworks.github.io/talisman/scripts/install.bash > install.bash
+        chmod +x install.bash
+        expect -c '
+        set timeout -1
+        spawn ./install.bash --pre-push
+        expect "PLEASE CHOOSE WHERE YOU WISH TO SET TALISMAN_HOME VARIABLE AND talisman binary PATH (Enter option number): "
+        send "4\r"
+        expect "No git template directory is configured. Let'\''s add one."
+        send "1\r"
+        interact
+        '
+
+    - name: Run Talisman
+      run: |
+        if ~/.talisman/bin/talisman_linux_amd64 --scan; then
+          cat talisman_report/talisman_reports/data/report.json | jq '.'
+        else
+          cat talisman_report/talisman_reports/data/report.json | jq '.'
+          exit 1
+        fi
