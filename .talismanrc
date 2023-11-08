@@ -1,7 +1,4 @@
-version: ""
-fileignoreconfig:
-- filename: test/data.json
-  checksum: 515de8df56d17ad5851b32e6bafcf558210a9bb543f26907b9f1e1d7c295352e
+
 custom_patterns:
 - blt([a-z0-9]+)
 - cs([a-z0-9]+)
