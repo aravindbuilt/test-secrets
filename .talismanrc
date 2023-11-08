@@ -1,0 +1,5 @@
+
+custom_patterns:
+- blt([a-z0-9]+)
+- cs([a-z0-9]+)
+
